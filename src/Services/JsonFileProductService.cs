@@ -25,22 +25,26 @@ namespace ContosoCrafts.WebSite.Services
                 new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
-                });
+                }) ?? new Product[0];
         }
 
         public void AddRating(string productId, int rating)
         {
             var products = GetProducts();
+            var product = products.First(x => x.Id == productId);
+            if (product is null) {
+                return;
+            }
 
-            if (products.First(x => x.Id == productId).Ratings == null)
+            if (product.Ratings is null)
             {
-                products.First(x => x.Id == productId).Ratings = new int[] { rating };
+                product.Ratings = new int[] { rating };
             }
             else
             {
-                var ratings = products.First(x => x.Id == productId).Ratings.ToList();
+                var ratings = product.Ratings.ToList();
                 ratings.Add(rating);
-                products.First(x => x.Id == productId).Ratings = ratings.ToArray();
+                product.Ratings = ratings.ToArray();
             }
 
             using var outputStream = File.OpenWrite(JsonFileName);
